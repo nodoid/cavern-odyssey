@@ -1,0 +1,27 @@
+# Build output
+bin/
+obj/
+build/
+
+# Store submissions and packaged releases stay out of source control
+Stores/
+releases/
+
+# Reference material, notes and local binaries
+ref/
+tmp/
+*.user
+*.suo
+.vs/
+.idea/
+
+# Signing material — never commit
+packaging/android/cavern-odyssey.keystore
+packaging/android/keystore.properties
+*.pfx
+*.p12
+*.mobileprovision
+*.cer
+
+# macOS
+.DS_Store

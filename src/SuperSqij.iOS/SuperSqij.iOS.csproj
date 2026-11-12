@@ -1,0 +1,36 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-ios</TargetFramework>
+    <Nullable>enable</Nullable>
+    <OutputType>Exe</OutputType>
+    <SupportedOSPlatformVersion>18.0</SupportedOSPlatformVersion>
+    <AssemblyName>SuperSqij</AssemblyName>
+    <RootNamespace>SuperSqij.iOS</RootNamespace>
+    <DefineConstants>$(DefineConstants);IOS;MOBILE</DefineConstants>
+    <CodesignKey>Apple Development</CodesignKey>
+    <CodesignProvision>devel-supersqij</CodesignProvision>
+    <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
+    <!-- App Store submission requires the icon to come from a compiled asset catalog. -->
+    <AppIcon>AppIcon</AppIcon>
+  </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationTitle>Cavern Odyssey</ApplicationTitle>
+    <!-- The provisioning profile is issued for this App ID (with hyphens). -->
+    <ApplicationId>uk.co.all-the-johnsons.supersqij</ApplicationId>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <ApplicationVersion>1</ApplicationVersion>
+  </PropertyGroup>
+  <ItemGroup>
+    <BundleResource Include="LaunchLogo.png" />
+    <BundleResource Include="LaunchScreen.storyboard" />
+    <BundleResource Include="PrivacyInfo.xcprivacy" />
+    <ImageAsset Include="Assets.xcassets\**" />
+    <Compile Include="..\SuperSqij.Shared\**\*.cs" Link="Shared\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\SuperSqij.Shared\Assets\*.png">
+      <LogicalName>SuperSqij.Assets.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.iOS" Version="3.8.6.1" />
+  </ItemGroup>
+</Project>

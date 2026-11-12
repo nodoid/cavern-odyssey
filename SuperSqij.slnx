@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/SuperSqij.Android/SuperSqij.Android.csproj" />
+    <Project Path="src/SuperSqij.DesktopGL/SuperSqij.DesktopGL.csproj" />
+    <Project Path="src/SuperSqij.iOS/SuperSqij.iOS.csproj" />
+    <Project Path="src/SuperSqij.WindowsDX/SuperSqij.WindowsDX.csproj" />
+  </Folder>
+</Solution>

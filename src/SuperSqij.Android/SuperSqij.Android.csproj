@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net10.0-android</TargetFramework>
+    <Nullable>enable</Nullable>
+    <SupportedOSPlatformVersion>32</SupportedOSPlatformVersion>
+    <TargetSdkVersion>36</TargetSdkVersion>
+    <OutputType>Exe</OutputType>
+    <ApplicationId>uk.co.allthejohnsons.supersqij</ApplicationId>
+    <ApplicationVersion>1</ApplicationVersion>
+    <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <AssemblyName>SuperSqij</AssemblyName>
+    <RootNamespace>SuperSqij.Android</RootNamespace>
+    <DefineConstants>$(DefineConstants);ANDROID;MOBILE</DefineConstants>
+    <AndroidPackageFormat>apk</AndroidPackageFormat>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\SuperSqij.Shared\**\*.cs" Link="Shared\%(RecursiveDir)%(Filename)%(Extension)" />
+    <EmbeddedResource Include="..\SuperSqij.Shared\Assets\*.png">
+      <LogicalName>SuperSqij.Assets.%(Filename)%(Extension)</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="MonoGame.Framework.Android" Version="3.8.6.1" />
+  </ItemGroup>
+</Project>
