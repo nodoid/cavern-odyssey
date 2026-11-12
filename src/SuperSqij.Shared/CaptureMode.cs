@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -13,7 +14,7 @@ namespace SuperSqij;
 /// </summary>
 public sealed partial class SuperSqijGame
 {
-    private sealed record CaptureRequest(string Path, int Width, int Height, int Frames);
+    private sealed record CaptureRequest(string Path, int Width, int Height, int Frames, int RoomSlot);
 
     private CaptureRequest? _captureRequest;
     private RenderTarget2D? _captureTarget;
@@ -38,10 +39,28 @@ public sealed partial class SuperSqijGame
     private Vector2 _demoLastPos;
     private float _demoStillTime;
 
-    public void RequestCapture(string path, int width, int height, int frames)
-        => _captureRequest = new CaptureRequest(path, width, height, frames);
+    private System.Diagnostics.Stopwatch? _captureStopwatch;
+
+    public void RequestCapture(string path, int width, int height, int frames, int roomSlot = 0)
+        => _captureRequest = new CaptureRequest(path, width, height, frames, roomSlot);
 
     private bool Capturing => _captureRequest != null;
+
+    /// <summary>Starts a capture; later clips skip the splash and title and open on gameplay.</summary>
+    private void BeginCapture()
+    {
+        if (_captureRequest!.RoomSlot > 0)
+        {
+            StartNewGame(1986);
+            WarpToRoomSlot(_captureRequest.RoomSlot);
+            // The tutorial line belongs in the opening clip only; later clips show the
+            // room banner and the controls hint instead.
+            _messageTimer = 0f;
+            _introTimer = 3f;
+            _demoTitleStep = 3;
+        }
+        StartCapture();
+    }
 
     private void StartCapture()
     {
@@ -57,6 +76,9 @@ public sealed partial class SuperSqijGame
         TargetElapsedTime = TimeSpan.FromSeconds(1.0 / 30.0);
         _demoDirTimer = 2.5f;
         _demoSpitCooldown = 1.5f;
+        // The recorded audio starts when the audio device opened, which happens just
+        // before this. Log how far into it the first frame lands so the mux can trim.
+        _captureStopwatch = System.Diagnostics.Stopwatch.StartNew();
         Console.WriteLine($"CAPTURE: {req.Width}x{req.Height}, {req.Frames} frames -> {req.Path}");
     }
 
@@ -85,6 +107,9 @@ public sealed partial class SuperSqijGame
             buffer[o + 2] = colors[i].B;
             buffer[o + 3] = 255;
         }
+        if (_capturedFrames == 0 && _captureStopwatch != null)
+            Console.WriteLine($"CAPTURE: audio offset {_captureStopwatch.Elapsed.TotalSeconds:0.000}s");
+
         _captureStream.Write(buffer, 0, buffer.Length);
         _capturedFrames++;
         _capturedTime += dt;
@@ -109,7 +134,12 @@ public sealed partial class SuperSqijGame
                 // Walk the menu down and back up, then start the descent.
                 if (_demoTitleStep == 0 && _modeTime > 1.0f) { c.MenuDownPressed = true; _demoTitleStep = 1; }
                 else if (_demoTitleStep == 1 && _modeTime > 1.8f) { c.MenuUpPressed = true; _demoTitleStep = 2; }
-                else if (_demoTitleStep == 2 && _modeTime > 2.9f) { StartNewGame(1986); _demoTitleStep = 3; }
+                else if (_demoTitleStep == 2 && _modeTime > 2.9f)
+                {
+                    StartNewGame(1986);
+                    WarpToRoomSlot(_captureRequest!.RoomSlot);
+                    _demoTitleStep = 3;
+                }
                 break;
 
             case GameMode.Playing:
@@ -220,6 +250,61 @@ public sealed partial class SuperSqijGame
             return null;
         }
         return best;
+    }
+
+    /// <summary>
+    /// Drops the player into a different part of the level so each clip in a montage
+    /// shows a different room. Slot 0 keeps the normal start.
+    /// </summary>
+    private void WarpToRoomSlot(int slot)
+    {
+        if (slot <= 0) return;
+        int index = ChooseRoom(slot);
+        if (index < 0) return;
+
+        int rx = index % World.RoomsX;
+        int ry = index / World.RoomsX;
+        int x0 = rx * World.RoomTilesX;
+        int y0 = ry * World.RoomTilesY;
+        // Walk outwards from the middle of the room looking for a floor tile with clear
+        // space above it, so the player never lands inside geometry.
+        for (int step = 0; step < World.RoomTilesX; step++)
+        {
+            int tx = x0 + (World.RoomTilesX / 2) + (step % 2 == 0 ? step / 2 : -(step + 1) / 2);
+            if (tx < x0 || tx >= x0 + World.RoomTilesX) continue;
+            for (int ty = y0 + World.RoomTilesY - 1; ty > y0 + 2; ty--)
+            {
+                if (!_world.IsSolid(tx, ty)) continue;
+                if (_world.IsSolid(tx, ty - 1) || _world.IsSolid(tx, ty - 2)) continue;
+                _player.Reset(new Vector2(tx * World.TileSize + 6, ty * World.TileSize - Player.Height - 2));
+                _world.VisitRoom(_player.Center);
+                SnapCamera();
+                Console.WriteLine($"CAPTURE: warped to room {index} '{_world.Rooms[index].Name}'");
+                return;
+            }
+        }
+    }
+
+    /// <summary>Picks a room that shows off something different in each clip.</summary>
+    private int ChooseRoom(int slot)
+    {
+        int RoomOf(Vector2 position)
+        {
+            var (x, y) = _world.RoomAt(position);
+            return y * World.RoomsX + x;
+        }
+
+        var start = RoomOf(_world.StartPosition);
+        IEnumerable<int> Candidates() => slot switch
+        {
+            1 => _world.Monstas.Select(m => RoomOf(m.Pos)),
+            2 => _world.Doors.Select(d => RoomOf(d.Bounds.Center)),
+            _ => _world.Enemies.Select(e => RoomOf(e.Pos)),
+        };
+
+        foreach (var room in Candidates().Distinct().OrderBy(i => i))
+            if (room != start) return room;
+        return -1;
     }
 
     /// <summary>xorshift32: a fixed sequence, so the captured run is repeatable.</summary>

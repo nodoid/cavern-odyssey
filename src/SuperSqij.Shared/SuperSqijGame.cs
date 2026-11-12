@@ -220,7 +220,7 @@ public sealed partial class SuperSqijGame : Game
 #if IOS
         if (SuperSqij.iOS.Program.Autostart) StartNewGame(1986);
 #endif
-        if (Capturing) StartCapture();
+        if (Capturing) BeginCapture();
     }
 
 

@@ -19,7 +19,8 @@ internal static class Program
         int capture = Array.IndexOf(args, "--capture");
         if (capture >= 0 && args.Length > capture + 4)
             game.RequestCapture(args[capture + 1], int.Parse(args[capture + 2]),
-                int.Parse(args[capture + 3]), int.Parse(args[capture + 4]));
+                int.Parse(args[capture + 3]), int.Parse(args[capture + 4]),
+                args.Length > capture + 5 ? int.Parse(args[capture + 5]) : 0);
         game.Run();
     }
 
