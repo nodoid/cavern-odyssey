@@ -107,6 +107,17 @@ app icons and Windows store logos. Edit it rather than the PNGs.
 - `sign_msix.ps1 -Package <msix> -Pfx <cert.pfx>` — signs a package on Windows with the
   certificate whose subject matches the manifest publisher.
 
+Android releases are signed with a keystore kept out of git. Create it once, then keep the
+file and its passwords somewhere safe — every future update must use the same key:
+
+```bash
+keytool -genkeypair -keystore packaging/android/cavern-odyssey.keystore \
+  -alias cavernodyssey -keyalg RSA -keysize 4096 -validity 10000 \
+  -dname "CN=Cavern Odyssey, O=all-the-johnson, C=GB"
+```
+
+Then sign the APK with `apksigner` and the bundle with `jarsigner` before uploading.
+
 macOS builds are ad-hoc signed, so downloaded copies need the usual right-click → Open
 (or notarisation with a Developer ID before distribution).
 
