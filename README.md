@@ -73,10 +73,12 @@ that every difficulty produces a complete level):
 dotnet run --project src/SuperSqij.DesktopGL/SuperSqij.DesktopGL.csproj -- --verify
 ```
 
-iOS device build:
+iOS device build (Debug signs with `devel-supersqij`, Release with `rel-supersqij`):
 
 ```bash
 dotnet build src/SuperSqij.iOS/SuperSqij.iOS.csproj -c Debug
+dotnet publish src/SuperSqij.iOS/SuperSqij.iOS.csproj -c Release -f net10.0-ios \
+  -r ios-arm64 -p:BuildIpa=true -p:IpaPackageDir=build/ios-release
 ```
 
 Android package:
@@ -101,7 +103,8 @@ app icons and Windows store logos. Edit it rather than the PNGs.
 
 `tools/` holds the scripts that produce the store builds and their store assets:
 
-- `package_macos.sh [osx-arm64|osx-x64]` — self-contained `.app` inside a zip.
+- `package_macos.sh [osx-arm64|osx-x64]` — self-contained `.app`, signed with the
+  `rel-supersqij-mac` profile and wrapped in a signed `.pkg`.
 - `make_msix.py <publish-dir> <x64|arm64> <out.msix>` — MSIX container writer that does
   not need Windows, because `makeappx.exe` is not available elsewhere.
 - `sign_msix.ps1 -Package <msix> -Pfx <cert.pfx>` — signs a package on Windows with the
@@ -118,8 +121,13 @@ keytool -genkeypair -keystore packaging/android/cavern-odyssey.keystore \
 
 Then sign the APK with `apksigner` and the bundle with `jarsigner` before uploading.
 
-macOS builds are ad-hoc signed, so downloaded copies need the usual right-click → Open
-(or notarisation with a Developer ID before distribution).
+The Apple builds are signed for the stores: `releases/CavernOdyssey-1.0-ios.ipa` with
+`rel-supersqij`, and the two `releases/CavernOdyssey-1.0-macos-*.pkg` with
+`rel-supersqij-mac` plus the `3rd Party Mac Developer Installer` certificate. Both profiles
+are the release profiles from the developer portal; `package_macos.sh` looks for
+`rel-supersqij-mac` in `~/Downloads` or the Xcode profile folders, and the iOS project
+names `rel-supersqij` in its Release configuration. Store-signed macOS apps only run once
+installed from the package, so there is no direct-download zip.
 
 ## Licence
 

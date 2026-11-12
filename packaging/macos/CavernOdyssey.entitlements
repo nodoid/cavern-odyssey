@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Mac App Store distribution requires the sandbox. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<!-- The .NET runtime JIT-compiles game code, which the sandbox forbids by default. -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+</dict>
+</plist>

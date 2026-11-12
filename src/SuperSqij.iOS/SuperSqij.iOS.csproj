@@ -7,8 +7,10 @@
     <AssemblyName>SuperSqij</AssemblyName>
     <RootNamespace>SuperSqij.iOS</RootNamespace>
     <DefineConstants>$(DefineConstants);IOS;MOBILE</DefineConstants>
-    <CodesignKey>Apple Development</CodesignKey>
-    <CodesignProvision>devel-supersqij</CodesignProvision>
+    <CodesignKey Condition="'$(Configuration)' == 'Release'">Apple Distribution</CodesignKey>
+    <CodesignProvision Condition="'$(Configuration)' == 'Release'">rel-supersqij</CodesignProvision>
+    <CodesignKey Condition="'$(Configuration)' != 'Release'">Apple Development</CodesignKey>
+    <CodesignProvision Condition="'$(Configuration)' != 'Release'">devel-supersqij</CodesignProvision>
     <RuntimeIdentifier>ios-arm64</RuntimeIdentifier>
     <!-- App Store submission requires the icon to come from a compiled asset catalog. -->
     <AppIcon>AppIcon</AppIcon>
