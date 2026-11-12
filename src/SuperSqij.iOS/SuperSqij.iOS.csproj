@@ -21,6 +21,10 @@
     <ApplicationId>uk.co.all-the-johnsons.supersqij</ApplicationId>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
     <ApplicationVersion>1</ApplicationVersion>
+    <AssemblyTitle>Cavern Odyssey</AssemblyTitle>
+    <Product>Cavern Odyssey</Product>
+    <Authors>Paul F. Johnson</Authors>
+    <Copyright>© 2026 Paul F. Johnson</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <BundleResource Include="LaunchLogo.png" />

@@ -19,6 +19,10 @@
     <ApplicationId>uk.co.allthejohnsons.supersqij</ApplicationId>
     <WindowsPackageName>49556nodoid.CavernOdyssey</WindowsPackageName>
     <PublisherDisplayName>all-the-johnsons</PublisherDisplayName>
+    <AssemblyTitle>Cavern Odyssey</AssemblyTitle>
+    <Product>Cavern Odyssey</Product>
+    <Authors>Paul F. Johnson</Authors>
+    <Copyright>© 2026 Paul F. Johnson</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\SuperSqij.Shared\**\*.cs" Link="Shared\%(RecursiveDir)%(Filename)%(Extension)" />

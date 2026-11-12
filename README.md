@@ -46,7 +46,7 @@ tools/                     Asset generation and release packaging scripts
 packaging/                 Windows MSIX manifest and assets
 ```
 
-The assembly, namespaces and level-file header still use the original working title
+The assembly file name, namespaces and level-file header still use the original working title
 (`SuperSqij`, `SQIJLEVEL 2`) because the bundle identifiers and file format keep those
 names; everything the player sees is branded Cavern Odyssey.
 
@@ -138,5 +138,8 @@ installed from the package, so there is no direct-download zip.
 
 ## Licence
 
-All rights reserved. The source is provided for reference and for building the game;
-please do not redistribute modified builds without permission.
+The **DILLIGAF Licence** — © 2026 Paul F. Johnson. See [LICENSE](LICENSE).
+
+Do whatever you like with the source: use it, fork it, ship it, sell it. Attribution is
+appreciated, not required, and there is no warranty of any kind. MonoGame and the other
+NuGet dependencies keep their own licences.

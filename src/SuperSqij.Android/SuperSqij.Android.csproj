@@ -8,6 +8,10 @@
     <ApplicationId>uk.co.allthejohnsons.supersqij</ApplicationId>
     <ApplicationVersion>1</ApplicationVersion>
     <ApplicationDisplayVersion>1.0</ApplicationDisplayVersion>
+    <AssemblyTitle>Cavern Odyssey</AssemblyTitle>
+    <Product>Cavern Odyssey</Product>
+    <Authors>Paul F. Johnson</Authors>
+    <Copyright>© 2026 Paul F. Johnson</Copyright>
     <AssemblyName>SuperSqij</AssemblyName>
     <RootNamespace>SuperSqij.Android</RootNamespace>
     <DefineConstants>$(DefineConstants);ANDROID;MOBILE</DefineConstants>

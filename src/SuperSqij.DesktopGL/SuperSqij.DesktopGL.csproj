@@ -16,6 +16,10 @@
   <PropertyGroup>
     <ApplicationTitle>Cavern Odyssey</ApplicationTitle>
     <ApplicationId>uk.co.allthejohnsons.supersqij</ApplicationId>
+    <AssemblyTitle>Cavern Odyssey</AssemblyTitle>
+    <Product>Cavern Odyssey</Product>
+    <Authors>Paul F. Johnson</Authors>
+    <Copyright>© 2026 Paul F. Johnson</Copyright>
   </PropertyGroup>
   <ItemGroup>
     <None Remove="Icon.ico" />
