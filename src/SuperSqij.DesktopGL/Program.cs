@@ -15,12 +15,17 @@ internal static class Program
 
         using var game = new SuperSqijGame();
         // --capture <file> <width> <height> <frames>: dump raw RGBA frames for the
-        // gameplay videos (see tools/capture_video.sh).
+        // gameplay videos (see tools/capture_video.sh). --shot <title|play|scores|credits>
+        // holds one screen still for the store screenshots, and --shot-mobile renders
+        // them with the touch interface the phones and tablets show.
         int capture = Array.IndexOf(args, "--capture");
+        int shot = Array.IndexOf(args, "--shot");
         if (capture >= 0 && args.Length > capture + 4)
             game.RequestCapture(args[capture + 1], int.Parse(args[capture + 2]),
                 int.Parse(args[capture + 3]), int.Parse(args[capture + 4]),
-                args.Length > capture + 5 ? int.Parse(args[capture + 5]) : 0);
+                args.Length > capture + 5 && !args[capture + 5].StartsWith("--") ? int.Parse(args[capture + 5]) : 0,
+                shot >= 0 && args.Length > shot + 1 ? args[shot + 1] : "",
+                args.Contains("--shot-mobile"));
         game.Run();
     }
 

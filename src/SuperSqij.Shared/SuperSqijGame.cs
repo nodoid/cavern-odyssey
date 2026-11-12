@@ -162,6 +162,9 @@ public sealed partial class SuperSqijGame : Game
 #if DESKTOP
         Window.AllowUserResizing = true;
 #endif
+        // Store screenshots for the phone and tablet sets are rendered by the desktop
+        // build but must show the touch-only interface.
+        if (_captureRequest is { Mobile: true }) _mobile = true;
         _scene = new RenderTarget2D(GraphicsDevice, Renderer.ViewW, Renderer.ViewH, false,
             SurfaceFormat.Color, DepthFormat.None, 0, RenderTargetUsage.PreserveContents);
         // The editor needs a mouse and hotkeys, so phones only get the normal entries.
@@ -1412,7 +1415,8 @@ public sealed partial class SuperSqijGame : Game
         DrawCentered("MONOGAME", Renderer.ViewW / 2f, 202, Palette.Gold * 0.9f, 1.5f);
         DrawCentered("ALL SOUND SYNTHESISED IN CODE", Renderer.ViewW / 2f, 226, Palette.Paper * 0.85f);
 
-        DrawCentered("PRESS ENTER TO RETURN", Renderer.ViewW / 2f, 300, Palette.Paper * 0.6f);
+        DrawCentered(_mobile ? "TAP TO RETURN" : "PRESS ENTER TO RETURN",
+            Renderer.ViewW / 2f, 300, Palette.Paper * 0.6f);
     }
 
     private void DrawPaused()

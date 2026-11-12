@@ -14,7 +14,8 @@ namespace SuperSqij;
 /// </summary>
 public sealed partial class SuperSqijGame
 {
-    private sealed record CaptureRequest(string Path, int Width, int Height, int Frames, int RoomSlot);
+    private sealed record CaptureRequest(string Path, int Width, int Height, int Frames, int RoomSlot,
+        string ShotMode, bool Mobile);
 
     private CaptureRequest? _captureRequest;
     private RenderTarget2D? _captureTarget;
@@ -41,15 +42,31 @@ public sealed partial class SuperSqijGame
 
     private System.Diagnostics.Stopwatch? _captureStopwatch;
 
-    public void RequestCapture(string path, int width, int height, int frames, int roomSlot = 0)
-        => _captureRequest = new CaptureRequest(path, width, height, frames, roomSlot);
+    public void RequestCapture(string path, int width, int height, int frames, int roomSlot = 0,
+        string shotMode = "", bool mobile = false)
+        => _captureRequest = new CaptureRequest(path, width, height, frames, roomSlot, shotMode, mobile);
 
     private bool Capturing => _captureRequest != null;
 
     /// <summary>Starts a capture; later clips skip the splash and title and open on gameplay.</summary>
     private void BeginCapture()
     {
-        if (_captureRequest!.RoomSlot > 0)
+        // Store screenshots hold one screen still instead of playing a demo run.
+        if (_captureRequest!.ShotMode.Length > 0)
+        {
+            StartNewGame(1986);
+            switch (_captureRequest.ShotMode)
+            {
+                case "title": SetMode(GameMode.Title); break;
+                case "scores": SetMode(GameMode.HighScores); break;
+                case "credits": SetMode(GameMode.Credits); break;
+                default: WarpToRoomSlot(_captureRequest.RoomSlot); break;
+            }
+            StartCapture();
+            return;
+        }
+
+        if (_captureRequest.RoomSlot > 0)
         {
             StartNewGame(1986);
             WarpToRoomSlot(_captureRequest.RoomSlot);
@@ -126,6 +143,7 @@ public sealed partial class SuperSqijGame
     private Controls DemoControls(float dt)
     {
         var c = new Controls();
+        if (_captureRequest!.ShotMode.Length > 0) return c;
         if (_mode != GameMode.Title) _demoTitleStep = 0;
 
         switch (_mode)
