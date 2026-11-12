@@ -12,7 +12,7 @@ namespace SuperSqij;
 
 public enum GameMode { Splash, Title, Help, Options, Controls, Credits, Editor, Playing, Paused, GameOver, Victory, NameEntry, HighScores }
 
-public sealed class SuperSqijGame : Game
+public sealed partial class SuperSqijGame : Game
 {
     private readonly GraphicsDeviceManager _graphics;
     private SpriteBatch _spriteBatch = null!;
@@ -220,6 +220,7 @@ public sealed class SuperSqijGame : Game
 #if IOS
         if (SuperSqij.iOS.Program.Autostart) StartNewGame(1986);
 #endif
+        if (Capturing) StartCapture();
     }
 
 
@@ -269,6 +270,8 @@ public sealed class SuperSqijGame : Game
         _prevKeys = kb;
 
         var c = _input.Read();
+        // Capture mode swaps in the scripted demo player (see CaptureMode.cs).
+        if (Capturing) c = DemoControls(dt);
         switch (_mode)
         {
             case GameMode.Splash:
@@ -928,6 +931,8 @@ public sealed class SuperSqijGame : Game
         _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp);
         _spriteBatch.Draw(_scene, new Rectangle(dx, dy, dw, dh), Color.White);
         _spriteBatch.End();
+
+        if (Capturing) CaptureFrame((float)gameTime.ElapsedGameTime.TotalSeconds);
 
         base.Draw(gameTime);
     }

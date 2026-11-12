@@ -14,6 +14,12 @@ internal static class Program
         }
 
         using var game = new SuperSqijGame();
+        // --capture <file> <width> <height> <frames>: dump raw RGBA frames for the
+        // gameplay videos (see tools/capture_video.sh).
+        int capture = Array.IndexOf(args, "--capture");
+        if (capture >= 0 && args.Length > capture + 4)
+            game.RequestCapture(args[capture + 1], int.Parse(args[capture + 2]),
+                int.Parse(args[capture + 3]), int.Parse(args[capture + 4]));
         game.Run();
     }
 
