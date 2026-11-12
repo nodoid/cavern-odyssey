@@ -48,6 +48,11 @@ dotnet publish src/SuperSqij.DesktopGL/SuperSqij.DesktopGL.csproj \
   -p:DebugType=None -p:DebugSymbols=false \
   -o "$BIN" -v q --nologo
 
+# createdump is the .NET crash-dump helper. It ships as a separate Mach-O
+# executable and App Store validation requires every executable in the bundle to
+# carry com.apple.security.app-sandbox; the tool is optional, so drop it.
+rm -f "$BIN/createdump"
+
 # App icon from the generated 1024px source.
 SRC_ICON="src/SuperSqij.Shared/Assets/icon_1024.png"
 if [ -f "$SRC_ICON" ]; then
