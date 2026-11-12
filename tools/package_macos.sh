@@ -10,6 +10,7 @@ cd "$(dirname "$0")/.."
 
 ARCH="${1:-osx-arm64}"
 VERSION="1.0"
+BUILD="2"
 BUNDLE_ID="uk.co.all-the-johnsons.supersqij"
 PROFILE_NAME="${PROFILE_NAME:-rel-supersqij-mac}"
 SIGN_ID="${SIGN_ID:-Apple Distribution}"
@@ -80,7 +81,7 @@ cat > "$APP/Contents/Info.plist" <<PLIST
     <key>CFBundleName</key><string>Cavern Odyssey</string>
     <key>CFBundlePackageType</key><string>APPL</string>
     <key>CFBundleShortVersionString</key><string>${VERSION}</string>
-    <key>CFBundleVersion</key><string>1</string>
+    <key>CFBundleVersion</key><string>${BUILD}</string>
     <key>LSApplicationCategoryType</key><string>public.app-category.games</string>
     <key>LSMinimumSystemVersion</key><string>12.0</string>
     <key>NSHighResolutionCapable</key><true/>
@@ -91,8 +92,12 @@ cat > "$APP/Contents/Info.plist" <<PLIST
 PLIST
 plutil -lint "$APP/Contents/Info.plist" >/dev/null
 
-# The embedded profile is what ties the signature to the Mac App Store.
+# The embedded profile is what ties the signature to the Mac App Store. The copy
+# keeps the profile's extended attributes (the one downloaded from the developer
+# site is quarantine-flagged) and the attributes end up in the pkg payload, which
+# App Store validation rejects with error 91109; strip them.
 cp "$PROFILE" "$APP/Contents/embedded.provisionprofile"
+xattr -c "$APP/Contents/embedded.provisionprofile"
 
 # The profile grants the app its identity entitlements (application-identifier and
 # team-identifier); without them the sandbox has nothing to bind to. Merge the
@@ -116,6 +121,10 @@ for f in "$BIN"/*; do
   if file -b "$f" | grep -qE "Mach-O|PE32"; then chmod +x "$f"; else chmod a-x "$f"; fi
 done
 
+# Belt and braces: published files can carry xattrs too, and any of them would
+# fail validation, so clear the whole bundle before anything is signed.
+xattr -cr "$APP"
+
 # codesign wants every file inside Contents/MacOS signed (it counts the managed
 # PE assemblies and even the runtime config as nested code), so sign all of them
 # and then the bundle. The bundle's main executable is skipped: a path to it
@@ -135,5 +144,6 @@ PKG="releases/CavernOdyssey-${VERSION}-macos-${ARCH#osx-}.pkg"
 rm -f "$PKG"
 productbuild --component "$APP" /Applications \
   --sign "$INSTALLER_SIGN_ID" "$PKG" >/dev/null
+xattr -c "$PKG"
 pkgutil --check-signature "$PKG"
 echo "built: $PKG"
