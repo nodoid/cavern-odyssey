@@ -7,13 +7,14 @@
     IgnorableNamespaces="uap rescap desktop">
 
   <Identity Name="49556nodoid.CavernOdyssey"
-            Publisher="CN=all-the-johnsons"
+            Publisher="CN=A6EAEB04-6634-41C1-BDFE-695819ECE444"
             Version="1.0.0.0"
             ProcessorArchitecture="x64" />
 
   <Properties>
-    <!-- Must be the name reserved in Partner Center, exactly as shown there. -->
-    <DisplayName>49556nodoid.CavernOdyssey</DisplayName>
+    <!-- The reserved product name. The package identity above is the Store-assigned
+         form of it, and the publisher is the account publisher ID, not a display name. -->
+    <DisplayName>Cavern Odyssey</DisplayName>
     <PublisherDisplayName>all-the-johnsons</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>A smooth-scrolling 256-room cavern odyssey. Rebuild the Enertree to win.</Description>
@@ -30,7 +31,7 @@
   <Applications>
     <Application Id="App" Executable="SuperSqij.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-          DisplayName="49556nodoid.CavernOdyssey"
+          DisplayName="Cavern Odyssey"
           Description="Rebuild the Enertree across 256 cavern rooms."
           BackgroundColor="#0B0D1A"
           Square150x150Logo="Assets\Square150x150Logo.png"

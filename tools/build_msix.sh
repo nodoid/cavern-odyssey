@@ -48,6 +48,13 @@ for arch in "${ARCHES[@]}"; do
     sed -i.bak "s|Publisher=\"[^\"]*\"|Publisher=\"$PUBLISHER\"|" "$stage/AppxManifest.xml"
     rm -f "$stage/AppxManifest.xml.bak"
   fi
+  # DISPLAY_NAME overrides the reserved product name without editing the manifest.
+  if [ -n "${DISPLAY_NAME:-}" ]; then
+    sed -i.bak "s|<DisplayName>[^<]*</DisplayName>|<DisplayName>$DISPLAY_NAME</DisplayName>|" \
+      "$stage/AppxManifest.xml"
+    sed -i.bak "s|DisplayName=\"[^\"]*\"|DisplayName=\"$DISPLAY_NAME\"|" "$stage/AppxManifest.xml"
+    rm -f "$stage/AppxManifest.xml.bak"
+  fi
 
   rm -f "$out"
   if [ -n "$MAKEMSIX" ]; then
