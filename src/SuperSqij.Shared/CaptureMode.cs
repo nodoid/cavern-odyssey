@@ -143,7 +143,11 @@ public sealed partial class SuperSqijGame
         _captureStream.Dispose();
         _captureStream = null;
         Console.WriteLine($"CAPTURE: wrote {_capturedFrames} frames covering {_capturedTime:0.00}s");
+#if !IOS
+        // iOS does not allow an app to close itself (Game.Exit is obsolete there), and the
+        // capture mode only ever runs on desktop, so the exit is desktop-only.
         Exit();
+#endif
     }
 
     /// <summary>Replaces the real input with the scripted demo player.</summary>
