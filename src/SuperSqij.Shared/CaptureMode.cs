@@ -60,6 +60,13 @@ public sealed partial class SuperSqijGame
                 case "title": SetMode(GameMode.Title); break;
                 case "scores": SetMode(GameMode.HighScores); break;
                 case "credits": SetMode(GameMode.Credits); break;
+                case "art":
+                    // Key art: the room alone, with no HUD, banner or control prompts.
+                    WarpToRoomSlot(_captureRequest.RoomSlot > 0 ? _captureRequest.RoomSlot : 1);
+                    _hudVisible = false;
+                    _messageTimer = 0f;
+                    _introTimer = 0f;
+                    break;
                 default: WarpToRoomSlot(_captureRequest.RoomSlot); break;
             }
             StartCapture();

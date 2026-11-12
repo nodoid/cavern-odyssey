@@ -119,6 +119,8 @@ public sealed partial class SuperSqijGame : Game
     private GameAction? _rebindAction;
     private int _keyIndex;
     private KeyboardState _rebindPrevKeys;
+    /// <summary>Cleared by the store-art capture so key art renders without HUD or prompts.</summary>
+    private bool _hudVisible = true;
 
     public SuperSqijGame()
     {
@@ -872,8 +874,8 @@ public sealed partial class SuperSqijGame : Game
             _spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied, SamplerState.PointClamp);
             // Only the playfield and pause overlay own the touch controls. Menu screens
             // must go back to plain taps so ConfirmPressed and Tap drive their options.
-            _input.TouchControlsVisible = _mobile && _mode is GameMode.Playing or GameMode.Paused;
-            if (_mode is GameMode.Playing or GameMode.Paused)
+            _input.TouchControlsVisible = _hudVisible && _mobile && _mode is GameMode.Playing or GameMode.Paused;
+            if (_hudVisible && _mode is GameMode.Playing or GameMode.Paused)
             {
                 _input.DrawTouchOverlay(_spriteBatch, _art.White, _art.Glow, _art.Font);
                 if (_mode == GameMode.Playing)
