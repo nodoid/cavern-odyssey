@@ -12,7 +12,9 @@
             ProcessorArchitecture="x64" />
 
   <Properties>
-    <DisplayName>Cavern Odyssey</DisplayName>
+    <!-- Must stay the reserved Store name (Partner Center); the game itself is branded
+         Cavern Odyssey. -->
+    <DisplayName>Super Sqij</DisplayName>
     <PublisherDisplayName>all-the-johnsons</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>A smooth-scrolling 256-room cavern odyssey. Rebuild the Enertree to win.</Description>
@@ -29,7 +31,7 @@
   <Applications>
     <Application Id="App" Executable="SuperSqij.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-          DisplayName="Cavern Odyssey"
+          DisplayName="Super Sqij"
           Description="Rebuild the Enertree across 256 cavern rooms."
           BackgroundColor="#0B0D1A"
           Square150x150Logo="Assets\Square150x150Logo.png"

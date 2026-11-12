@@ -15,7 +15,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationTitle>Cavern Odyssey</ApplicationTitle>
+    <ApplicationTitle>Super Sqij</ApplicationTitle>
     <ApplicationId>uk.co.allthejohnsons.supersqij</ApplicationId>
     <WindowsPackageName>49556nodoid.SuperSqij</WindowsPackageName>
     <PublisherDisplayName>all-the-johnsons</PublisherDisplayName>
