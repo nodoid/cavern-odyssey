@@ -5,7 +5,7 @@ param(
 )
 
 # MSIX signatures are only valid when the signing certificate subject matches the
-# Publisher in AppxManifest.xml ("CN=all-the-johnson").
+# Publisher in AppxManifest.xml ("CN=all-the-johnsons").
 $ErrorActionPreference = "Stop"
 
 $signTool = Get-Command signtool.exe -ErrorAction SilentlyContinue

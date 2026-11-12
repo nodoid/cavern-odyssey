@@ -7,7 +7,7 @@
     IgnorableNamespaces="uap rescap desktop">
 
   <Identity Name="49556nodoid.CavernOdyssey"
-            Publisher="CN=all-the-johnson"
+            Publisher="CN=all-the-johnsons"
             Version="1.0.0.0"
             ProcessorArchitecture="x64" />
 
