@@ -3,13 +3,15 @@ bin/
 obj/
 build/
 
-# Store submissions and packaged releases stay out of source control
-Stores/
-releases/
-
-# Reference material, notes and local binaries
+# Out of source control by request: packaging inputs, helper scripts,
+# reference material, store submissions and packaged releases
+packaging/
 ref/
+releases/
+Stores/
+tools/
 tmp/
+
 *.user
 *.suo
 .vs/
