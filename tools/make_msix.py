@@ -2,9 +2,21 @@
 """Builds an unsigned MSIX package from a published Windows build.
 
 makeappx.exe is a Windows-only tool, so this script writes the OPC container
-itself: [Content_Types].xml, AppxBlockMap.xml and AppxManifest.xml plus the
-payload, all stored uncompressed so every block's compressed size is known
-without a second compressor.
+itself: AppxBlockMap.xml, AppxManifest.xml and [Content_Types].xml plus the
+payload. Everything is stored uncompressed, so each 64 KB block is a plain slice
+of the file and needs no second compressor.
+
+The layout follows what Microsoft's own packer writes, which is what the Store's
+block map validator accepts:
+
+* the block map lists every payload file plus AppxManifest.xml, and nothing else:
+  AppxBlockMap.xml and [Content_Types].xml are not parts of it;
+* ZIP entries keep forward slashes but block map names use backslashes, which is
+  how makeappx writes them (LfhSize still describes the ZIP entry);
+* Block elements carry only a Hash. The Size attribute exists for compressed
+  blocks, where it holds the compressed length, so stored blocks must omit it;
+* a file that is an exact multiple of 64 KB has no trailing empty block, and an
+  empty file has no Block elements at all.
 
 Usage: make_msix.py <publish-dir> <arch> <out.msix>
 """
@@ -49,27 +61,30 @@ def manifest_xml(arch: str) -> bytes:
     return text.encode("utf-8")
 
 
+def win_name(name: str) -> str:
+    """Packages name their parts with backslashes, as makeappx does."""
+    return name.replace("/", "\\")
+
+
 def local_header_size(name: str) -> int:
     # 30 byte fixed header plus the file name; no extra field is written.
     return 30 + len(name.encode("utf-8"))
 
 
-def block_map(files: dict[str, bytes]) -> bytes:
+def block_map(entries: list[tuple[str, bytes]]) -> bytes:
     parts = [
         '<?xml version="1.0" encoding="utf-8"?>',
         '<BlockMap xmlns="http://schemas.microsoft.com/appx/2010/blockmap" '
         'HashMethod="http://www.w3.org/2001/04/xmlenc#sha256">',
     ]
-    for name in sorted(files):
-        data = files[name]
+    for name, data in entries:
         parts.append(
-            f'  <File Name="{name}" Size="{len(data)}" LfhSize="{local_header_size(name)}">'
+            f'  <File Name="{win_name(name)}" Size="{len(data)}" '
+            f'LfhSize="{local_header_size(name)}">'
         )
-        for offset in range(0, max(len(data), 1), BLOCK):
-            chunk = data[offset:offset + BLOCK]
-            digest = base64.b64encode(hashlib.sha256(chunk).digest()).decode()
-            # Stored entries: compressed size equals the block length.
-            parts.append(f'    <Block Hash="{digest}" Size="{len(chunk)}"/>')
+        for offset in range(0, len(data), BLOCK):
+            digest = base64.b64encode(hashlib.sha256(data[offset:offset + BLOCK]).digest()).decode()
+            parts.append(f'    <Block Hash="{digest}"/>')
         parts.append("  </File>")
     parts.append("</BlockMap>")
     return "\n".join(parts).encode("utf-8")
@@ -92,29 +107,71 @@ def collect(publish: Path) -> dict[str, bytes]:
 
 
 def build(publish: Path, arch: str, out: Path) -> None:
-    files = collect(publish)
-    files["AppxManifest.xml"] = manifest_xml(arch)
+    payload = list(sorted(collect(publish).items()))
+    manifest = ("AppxManifest.xml", manifest_xml(arch))
 
-    used = {name.rsplit(".", 1)[-1].lower() for name in files}
+    used = {name.rsplit(".", 1)[-1].lower() for name, _ in payload}
+    used.add("xml")
     defaults = "\n".join(
         f'  <Default Extension="{ext}" ContentType="{EXTENSIONS.get(ext, "application/octet-stream")}"/>'
         for ext in sorted(used)
     )
-    files["[Content_Types].xml"] = CONTENT_TYPES.format(defaults=defaults).encode("utf-8")
-    files["AppxBlockMap.xml"] = block_map(files)
+    content_types = ("[Content_Types].xml", CONTENT_TYPES.format(defaults=defaults).encode("utf-8"))
+    blockmap = ("AppxBlockMap.xml", block_map(payload + [manifest]))
 
     out.parent.mkdir(parents=True, exist_ok=True)
     if out.exists():
         out.unlink()
 
+    # Same order as Microsoft's packer: payload, manifest, block map, content types.
     with zipfile.ZipFile(out, "w", zipfile.ZIP_STORED, allowZip64=True) as zf:
-        for name in ["[Content_Types].xml", "AppxBlockMap.xml", "AppxManifest.xml"]:
-            zf.writestr(name, files.pop(name))
-        for name in sorted(files):
-            zf.writestr(name, files[name])
+        for name, data in payload:
+            zf.writestr(name, data)
+        for name, data in (manifest, blockmap, content_types):
+            zf.writestr(name, data)
 
+    verify(out)
     size = out.stat().st_size / (1024 * 1024)
-    print(f"built: {out} ({size:.1f} MB, {len(files) + 3} entries)")
+    print(f"built: {out} ({size:.1f} MB, {len(payload) + 3} entries)")
+
+
+def verify(package: Path) -> None:
+    """Re-reads the finished package and checks the rules the Store enforces."""
+    import re
+
+    zf = zipfile.ZipFile(package)
+    infos = zf.infolist()
+    names = [i.filename for i in infos]
+    assert names.count("[Content_Types].xml") == 1 and names.count("AppxManifest.xml") == 1, names[:4]
+    assert names[-3:] == ["AppxManifest.xml", "AppxBlockMap.xml", "[Content_Types].xml"], names[-3:]
+
+    xml = zf.read("AppxBlockMap.xml").decode("utf-8")
+    listed = re.findall(r'<File Name="([^"]+)" Size="(\d+)" LfhSize="(\d+)">(.*?)</File>', xml, re.S)
+    # Block map names use backslashes; the matching ZIP entry uses slashes.
+    assert all("/" not in name for name, _, _, _ in listed), "block map names must use backslashes"
+    expected = set(names) - {"AppxBlockMap.xml", "[Content_Types].xml"}
+    assert {name.replace("\\", "/") for name, _, _, _ in listed} == expected, \
+        "block map must list the payload and the manifest only"
+
+    offsets = {}
+    for info in infos:
+        offsets[info.filename] = info.header_offset
+    for name, size, lfh, body in listed:
+        data = zf.read(name.replace("\\", "/"))
+        assert len(data) == int(size), f"{name}: Size is not the uncompressed length"
+        assert "Size=\"" not in body, f"{name}: stored blocks must not carry a Size"
+        blocks = re.findall(r'<Block Hash="([^"]+)"/>', body)
+        chunks = [data[i:i + BLOCK] for i in range(0, len(data), BLOCK)]
+        assert len(blocks) == len(chunks), f"{name}: {len(blocks)} blocks for {len(chunks)} chunks"
+        for digest, chunk in zip(blocks, chunks):
+            assert digest == base64.b64encode(hashlib.sha256(chunk).digest()).decode(), \
+                f"{name}: block hash mismatch"
+        # The local header length has to match the bytes actually in the ZIP.
+        raw = package.read_bytes()
+        zip_name = name.replace("\\", "/")
+        nlen, elen = struct.unpack("<HH", raw[offsets[zip_name] + 26:offsets[zip_name] + 30])
+        assert int(lfh) == 30 + nlen + elen, f"{name}: LfhSize {lfh} is wrong"
+    print(f"verified: {len(listed)} block map entries, {len(names)} parts, no compressed Block sizes")
 
 
 if __name__ == "__main__":

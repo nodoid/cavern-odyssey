@@ -105,8 +105,14 @@ app icons and Windows store logos. Edit it rather than the PNGs.
 
 - `package_macos.sh [osx-arm64|osx-x64]` — self-contained `.app`, signed with the
   `rel-supersqij-mac` profile and wrapped in a signed `.pkg`.
-- `make_msix.py <publish-dir> <x64|arm64> <out.msix>` — MSIX container writer that does
-  not need Windows, because `makeappx.exe` is not available elsewhere.
+- `build_makemsix.sh` — builds Microsoft's cross-platform packer (`makemsix`, the MSIX
+  SDK equivalent of `makeappx.exe`) into `build/tools/makemsix`. Takes a few minutes.
+- `build_msix.sh [x64|arm64 ...]` — stages a published Windows build and packs both
+  MSIX files into `releases/`. Uses `makemsix` when it is present (the block map must come
+  from a real app packager or the Store rejects the upload with `APPX_E_INVALID_BLOCKMAP`).
+- `make_msix.py <publish-dir> <arch> <out.msix>` — fallback container writer for machines
+  without `makemsix`. It mirrors the same layout and self-checks the result, but only
+  `makemsix` output is known-good to Microsoft.
 - `sign_msix.ps1 -Package <msix> -Pfx <cert.pfx>` — signs a package on Windows with the
   certificate whose subject matches the manifest publisher.
 
