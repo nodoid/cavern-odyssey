@@ -6,15 +6,14 @@
     xmlns:desktop="http://schemas.microsoft.com/appx/manifest/desktop/windows10"
     IgnorableNamespaces="uap rescap desktop">
 
-  <Identity Name="49556nodoid.SuperSqij"
+  <Identity Name="49556nodoid.CavernOdyssey"
             Publisher="CN=all-the-johnson"
             Version="1.0.0.0"
             ProcessorArchitecture="x64" />
 
   <Properties>
-    <!-- Must stay the reserved Store name (Partner Center); the game itself is branded
-         Cavern Odyssey. -->
-    <DisplayName>Super Sqij</DisplayName>
+    <!-- Must be the name reserved in Partner Center, exactly as shown there. -->
+    <DisplayName>49556nodoid.CavernOdyssey</DisplayName>
     <PublisherDisplayName>all-the-johnsons</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>A smooth-scrolling 256-room cavern odyssey. Rebuild the Enertree to win.</Description>
@@ -31,7 +30,7 @@
   <Applications>
     <Application Id="App" Executable="SuperSqij.exe" EntryPoint="Windows.FullTrustApplication">
       <uap:VisualElements
-          DisplayName="Super Sqij"
+          DisplayName="49556nodoid.CavernOdyssey"
           Description="Rebuild the Enertree across 256 cavern rooms."
           BackgroundColor="#0B0D1A"
           Square150x150Logo="Assets\Square150x150Logo.png"
