@@ -110,6 +110,7 @@ app icons and Windows store logos. Edit it rather than the PNGs.
 - `build_msix.sh [x64|arm64 ...]` — stages a published Windows build and packs both
   MSIX files into `releases/`. Uses `makemsix` when it is present (the block map must come
   from a real app packager or the Store rejects the upload with `APPX_E_INVALID_BLOCKMAP`).
+  `PUBLISHER="CN=..."` overrides the manifest publisher for a Store submission.
 - `make_msix.py <publish-dir> <arch> <out.msix>` — fallback container writer for machines
   without `makemsix`. It mirrors the same layout and self-checks the result, but only
   `makemsix` output is known-good to Microsoft.

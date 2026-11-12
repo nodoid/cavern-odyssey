@@ -42,6 +42,12 @@ for arch in "${ARCHES[@]}"; do
   cp -R packaging/windows/Assets "$stage/Assets"
   sed "s/ProcessorArchitecture=\"[A-Za-z0-9]*\"/ProcessorArchitecture=\"$arch\"/" \
     packaging/windows/AppxManifest.xml > "$stage/AppxManifest.xml"
+  # Store submissions need the publisher ID assigned in Partner Center here, which is not
+  # the subject of the sideloading certificate. PUBLISHER="CN=..." overrides it.
+  if [ -n "${PUBLISHER:-}" ]; then
+    sed -i.bak "s|Publisher=\"[^\"]*\"|Publisher=\"$PUBLISHER\"|" "$stage/AppxManifest.xml"
+    rm -f "$stage/AppxManifest.xml.bak"
+  fi
 
   rm -f "$out"
   if [ -n "$MAKEMSIX" ]; then

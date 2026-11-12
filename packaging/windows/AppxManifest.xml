@@ -13,7 +13,7 @@
 
   <Properties>
     <DisplayName>Cavern Odyssey</DisplayName>
-    <PublisherDisplayName>all-the-johnson</PublisherDisplayName>
+    <PublisherDisplayName>all-the-johnsons</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
     <Description>A smooth-scrolling 256-room cavern odyssey. Rebuild the Enertree to win.</Description>
   </Properties>
